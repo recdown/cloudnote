@@ -1,0 +1,56 @@
+.index {
+  padding: 20rpx;
+
+  &-container {
+    margin-bottom: 30rpx;
+    box-shadow: 0 0 10px #ccc;
+
+    &-title {
+      height: 30rpx;
+      line-height: 30rpx;
+      text-align: center;
+      font-weight: 700;
+      padding: 20rpx;
+      background: #f8f8f8;
+
+    }
+
+    &-content {
+      display: flex;
+      height: 120px;
+      background: #f8f8f8;
+      padding: 20rpx 0;
+
+
+      img {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 120px;
+        margin: 0 20rpx;
+        box-sizing: border-box;
+        object-fit: cover;
+
+      }
+
+      &-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        line-height: 30px;
+        overflow: hidden;
+        margin: 0 20rpx;
+
+      }
+
+    }
+  }
+
+  &-container:last-child {
+    margin-bottom: 0;
+  }
+
+
+}

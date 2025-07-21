@@ -1,0 +1,14 @@
+.login, .register {
+  margin-top: 20rpx;
+
+  &_container {
+    padding: 20rpx;
+    text-align: center;
+
+    button {
+      width: 260rpx;
+      height: 90rpx;
+      line-height: 90rpx;
+    }
+  }
+}

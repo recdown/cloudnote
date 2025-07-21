@@ -1,0 +1,57 @@
+.detail {
+  padding: 50rpx;
+  font-size: 30rpx;
+  color: #333;
+  background-color: #ffffff;
+
+  &-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20rpx;
+
+    p {
+      font-size: 36rpx;
+      font-weight: bold;
+      margin: 0;
+      flex: 1;
+    }
+
+    span {
+      color: #999;
+      font-size: 26rpx;
+      margin-left: auto;
+      margin-top: 10rpx;
+      width: 100%;
+    }
+  }
+
+  &-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
+  &-set {
+    display: flex;
+    justify-content: flex-end;
+    gap: 30rpx;
+    margin-bottom: 30rpx;
+
+    &-edit {
+      color: #4a90e2;
+    }
+
+    &-delete {
+      color: #ff4d4f;
+    }
+  }
+
+  &-content {
+    font-size: 30rpx;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    color: #444;
+  }
+}

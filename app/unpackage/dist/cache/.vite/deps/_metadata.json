@@ -1,0 +1,25 @@
+{
+  "hash": "9920ddf8",
+  "configHash": "0a86b21d",
+  "lockfileHash": "5bd06663",
+  "browserHash": "d1adf4cb",
+  "optimized": {
+    "js-sha256": {
+      "src": "../../../../../node_modules/js-sha256/src/sha256.js",
+      "file": "js-sha256.js",
+      "fileHash": "8e66be32",
+      "needsInterop": true
+    },
+    "dayjs": {
+      "src": "../../../../../node_modules/dayjs/dayjs.min.js",
+      "file": "dayjs.js",
+      "fileHash": "c0907814",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "chunk-Y2F7D3TJ": {
+      "file": "chunk-Y2F7D3TJ.js"
+    }
+  }
+}
