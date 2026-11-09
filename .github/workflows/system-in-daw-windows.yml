@@ -20,6 +20,8 @@ jobs:
         run: cmake -S system-in-daw -B build -A x64
       - name: Build Release
         run: cmake --build build --config Release --parallel
+      - name: Run unit tests
+        run: ctest --test-dir build -C Release --output-on-failure
       - name: Upload feasibility probe
         uses: actions/upload-artifact@v4
         with:
