@@ -27,6 +27,8 @@ struct alignas(64) SharedAudioHeader {
     std::uint32_t reserved[11];
     alignas(64) volatile LONG64 writeFrame;
     alignas(64) volatile LONG64 readFrame;
+    alignas(64) volatile LONG64 overrunFrames;
+    alignas(64) volatile LONG64 underrunFrames;
 };
 
 inline constexpr std::size_t kMappingBytes =
@@ -98,6 +100,8 @@ public:
                         (totalSamples - firstSamples) * sizeof(float));
         }
         InterlockedExchange64(&header_->readFrame, static_cast<LONG64>(read + count));
+        if (count < requestedFrames)
+            InterlockedExchangeAdd64(&header_->underrunFrames, static_cast<LONG64>(requestedFrames - count));
         return count;
     }
 
@@ -136,6 +140,8 @@ public:
         header->capacityFrames = kCapacityFrames;
         InterlockedExchange64(&header->writeFrame, 0);
         InterlockedExchange64(&header->readFrame, 0);
+        InterlockedExchange64(&header->overrunFrames, 0);
+        InterlockedExchange64(&header->underrunFrames, 0);
         MemoryBarrier();
         header->magic = kMagic;
         mapping_ = mapping;
@@ -177,6 +183,8 @@ public:
         }
         MemoryBarrier();
         InterlockedExchange64(&header_->writeFrame, static_cast<LONG64>(write + count));
+        if (count < frames)
+            InterlockedExchangeAdd64(&header_->overrunFrames, static_cast<LONG64>(frames - count));
         return count;
     }
 
