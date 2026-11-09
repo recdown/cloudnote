@@ -4,8 +4,8 @@
 #include "public.sdk/source/main/pluginfactory.h"
 
 namespace SystemInDaw {
-FUnknown* createProcessor(void*);
-FUnknown* createController(void*);
+Steinberg::FUnknown* createProcessor(void*);
+Steinberg::FUnknown* createController(void*);
 }
 
 using namespace Steinberg;
