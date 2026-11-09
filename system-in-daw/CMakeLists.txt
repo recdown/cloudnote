@@ -24,6 +24,15 @@ FetchContent_Declare(vst3sdk
 FetchContent_MakeAvailable(vst3sdk)
 smtg_enable_vst3_sdk()
 
+add_executable(SystemInService src/system_in_service.cpp)
+target_include_directories(SystemInService PRIVATE src)
+target_compile_features(SystemInService PRIVATE cxx_std_20)
+target_compile_definitions(SystemInService PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
+target_link_libraries(SystemInService PRIVATE ole32 uuid propsys)
+if(MSVC)
+  target_compile_options(SystemInService PRIVATE /W4 /permissive- /EHsc)
+endif()
+
 add_executable(SystemInProbe src/system_in_probe.cpp)
 target_compile_features(SystemInProbe PRIVATE cxx_std_20)
 target_compile_definitions(SystemInProbe PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
