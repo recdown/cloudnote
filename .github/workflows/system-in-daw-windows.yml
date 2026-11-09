@@ -24,6 +24,9 @@ jobs:
         run: cmake -S system-in-daw -B build -A x64
       - name: Build Release
         run: cmake --build build --config Release --parallel
+      - name: Run VST3 validator (diagnostic)
+        run: build/bin/Release/validator.exe build/VST3/Release/SystemIn.vst3
+        continue-on-error: true
       - name: Run unit tests
         run: ctest --test-dir build -C Release --output-on-failure
       - name: Show built VST3 bundles
