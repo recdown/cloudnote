@@ -70,7 +70,7 @@ int wmain() {
         struct FormatFree { WAVEFORMATEX* value; ~FormatFree() { if (value) CoTaskMemFree(value); } } freeFormat{mix};
 
         if (mix->nSamplesPerSec != kSampleRate || mix->nChannels == 0 ||
-            mix->wBitsPerSample != 16 && mix->wBitsPerSample != 32) {
+            (mix->wBitsPerSample != 16 && mix->wBitsPerSample != 32)) {
             throw std::runtime_error("Initial SYSTEM IN service requires 48 kHz and 16/32-bit endpoint audio");
         }
 
@@ -89,8 +89,6 @@ int wmain() {
         struct Stop { IAudioClient* client; ~Stop() { if (client) client->Stop(); } } stop{client.Get()};
 
         std::array<float, 16384> stereo {};
-        std::uint64_t framesPublished = 0;
-        std::uint64_t framesDropped = 0;
         std::cout << "SYSTEM IN bridge capture active at 48 kHz. Close this process to stop.\n";
 
         for (;;) {
@@ -120,9 +118,7 @@ int wmain() {
                         stereo[static_cast<std::size_t>(frame) * 2 + 1] = right;
                     }
                 }
-                const auto written = writer.write(stereo.data(), frames);
-                framesPublished += written;
-                framesDropped += frames - written;
+                (void)writer.write(stereo.data(), frames);
                 Check(capture->ReleaseBuffer(frames), "ReleaseBuffer");
                 Check(capture->GetNextPacketSize(&packetFrames), "GetNextPacketSize");
             }
