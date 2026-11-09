@@ -5,6 +5,7 @@
 #include <array>
 
 namespace SystemInDaw {
+namespace ipc = system_in_daw::ipc;
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
