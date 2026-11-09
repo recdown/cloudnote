@@ -108,4 +108,83 @@ private:
     float* samples_ {nullptr};
 };
 
+class SharedAudioWriter final {
+public:
+    SharedAudioWriter() = default;
+    ~SharedAudioWriter() { close(); }
+    SharedAudioWriter(const SharedAudioWriter&) = delete;
+    SharedAudioWriter& operator=(const SharedAudioWriter&) = delete;
+
+    bool create() noexcept {
+        if (view_) return true;
+        HANDLE mapping = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
+            static_cast<DWORD>((kMappingBytes >> 32) & 0xffffffffu),
+            static_cast<DWORD>(kMappingBytes & 0xffffffffu), kMappingName);
+        if (!mapping) return false;
+        void* view = MapViewOfFile(mapping, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, kMappingBytes);
+        if (!view) {
+            CloseHandle(mapping);
+            return false;
+        }
+        auto* header = static_cast<SharedAudioHeader*>(view);
+        // This mapping has a single service owner. Initialize its protocol before
+        // publishing the magic value so readers never accept a partial header.
+        std::memset(view, 0, kMappingBytes);
+        header->version = kVersion;
+        header->sampleRate = kSampleRate;
+        header->channels = kChannels;
+        header->capacityFrames = kCapacityFrames;
+        InterlockedExchange64(&header->writeFrame, 0);
+        InterlockedExchange64(&header->readFrame, 0);
+        MemoryBarrier();
+        header->magic = kMagic;
+        mapping_ = mapping;
+        view_ = view;
+        header_ = header;
+        samples_ = reinterpret_cast<float*>(static_cast<std::byte*>(view) + sizeof(SharedAudioHeader));
+        return true;
+    }
+
+    void close() noexcept {
+        if (view_) UnmapViewOfFile(view_);
+        if (mapping_) CloseHandle(mapping_);
+        mapping_ = nullptr;
+        view_ = nullptr;
+        header_ = nullptr;
+        samples_ = nullptr;
+    }
+
+    // Single producer: called by the WASAPI capture thread.
+    std::uint32_t write(const float* source, std::uint32_t frames) noexcept {
+        if (!header_ || !source || frames == 0) return 0;
+        const auto write = static_cast<std::uint64_t>(
+            InterlockedCompareExchange64(&header_->writeFrame, 0, 0));
+        const auto read = static_cast<std::uint64_t>(
+            InterlockedCompareExchange64(&header_->readFrame, 0, 0));
+        const auto used = write - read;
+        const auto freeFrames = used >= kCapacityFrames ? 0u :
+            kCapacityFrames - static_cast<std::uint32_t>(used);
+        const auto count = std::min(frames, freeFrames);
+        const auto offset = static_cast<std::uint32_t>(write) & (kCapacityFrames - 1);
+        const auto first = std::min(count, kCapacityFrames - offset);
+        const auto firstSamples = static_cast<std::size_t>(first) * kChannels;
+        const auto totalSamples = static_cast<std::size_t>(count) * kChannels;
+        const auto start = static_cast<std::size_t>(offset) * kChannels;
+        std::memcpy(samples_ + start, source, firstSamples * sizeof(float));
+        if (totalSamples > firstSamples) {
+            std::memcpy(samples_, source + firstSamples,
+                        (totalSamples - firstSamples) * sizeof(float));
+        }
+        MemoryBarrier();
+        InterlockedExchange64(&header_->writeFrame, static_cast<LONG64>(write + count));
+        return count;
+    }
+
+private:
+    HANDLE mapping_ {nullptr};
+    void* view_ {nullptr};
+    SharedAudioHeader* header_ {nullptr};
+    float* samples_ {nullptr};
+};
+
 } // namespace system_in_daw::ipc
