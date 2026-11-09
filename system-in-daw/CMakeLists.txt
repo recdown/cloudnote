@@ -49,6 +49,14 @@ if(MSVC)
 endif()
 add_test(NAME AudioRingBufferTest COMMAND AudioRingBufferTest)
 
+add_executable(SharedAudioMappingTest tests/shared_audio_mapping_test.cpp)
+target_include_directories(SharedAudioMappingTest PRIVATE src)
+target_compile_features(SharedAudioMappingTest PRIVATE cxx_std_20)
+if(MSVC)
+  target_compile_options(SharedAudioMappingTest PRIVATE /W4 /permissive- /EHsc)
+endif()
+add_test(NAME SharedAudioMappingTest COMMAND SharedAudioMappingTest)
+
 smtg_add_vst3plugin(SystemIn
   vst3/cids.h
   vst3/controller.cpp
