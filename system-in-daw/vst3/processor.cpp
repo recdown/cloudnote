@@ -2,7 +2,7 @@
 #include "shared_audio_mapping.hpp"
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include <algorithm>
-#include <vector>
+#include <array>
 
 namespace SystemInDaw {
 using namespace Steinberg;
@@ -25,6 +25,8 @@ public:
     }
 
     tresult PLUGIN_API setupProcessing(ProcessSetup& setup) SMTG_OVERRIDE {
+        if (setup.sampleRate != static_cast<SampleRate>(ipc::kSampleRate))
+            return kResultFalse; // Initial bridge format is fixed at 48 kHz.
         const auto result = AudioEffect::setupProcessing(setup);
         // Opening the mapping is deliberately outside process(), never on the audio thread.
         reader_.open();
@@ -43,6 +45,8 @@ public:
 
     tresult PLUGIN_API process(ProcessData& data) SMTG_OVERRIDE {
         if (data.numOutputs < 1 || !data.outputs || data.outputs[0].numChannels < 2)
+            return kResultFalse;
+        if (data.numSamples < 0 || static_cast<std::size_t>(data.numSamples) > scratch_.size() / 2)
             return kResultFalse;
 
         auto** out = data.outputs[0].channelBuffers32;
