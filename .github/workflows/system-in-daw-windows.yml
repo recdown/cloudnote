@@ -1,0 +1,29 @@
+name: SYSTEM IN / DAW OUT - Windows x64 build
+
+on:
+  push:
+    branches: [system-in-daw]
+    paths:
+      - "system-in-daw/**"
+      - ".github/workflows/system-in-daw-windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S system-in-daw -B build -A x64
+      - name: Build Release
+        run: cmake --build build --config Release --parallel
+      - name: Upload feasibility probe
+        uses: actions/upload-artifact@v4
+        with:
+          name: SystemInProbe-windows-x64
+          path: build/Release/SystemInProbe.exe
+          if-no-files-found: error
+          retention-days: 14
