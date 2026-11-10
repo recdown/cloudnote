@@ -24,9 +24,8 @@ jobs:
         run: cmake -S system-in-daw -B build -A x64
       - name: Build Release
         run: cmake --build build --config Release --parallel
-      - name: Run VST3 validator (diagnostic)
+      - name: Run VST3 validator
         run: build/bin/Release/validator.exe build/VST3/Release/SystemIn.vst3
-        continue-on-error: true
       - name: Run unit tests
         run: ctest --test-dir build -C Release --output-on-failure
       - name: Show built VST3 bundles
@@ -38,6 +37,6 @@ jobs:
           name: SystemIn-Development-windows-x64
           path: |
             build/**/*.vst3
-            build/Release/SystemInService.exe
+            build/bin/Release/SystemInService.exe
           if-no-files-found: error
           retention-days: 14
