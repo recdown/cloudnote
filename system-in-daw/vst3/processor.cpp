@@ -11,10 +11,14 @@ using namespace Steinberg::Vst;
 
 class SystemInProcessor final : public AudioEffect {
 public:
+    SystemInProcessor() {
+        // Associate the component with its edit controller in the VST3 factory metadata.
+        setControllerClass(ControllerUID);
+    }
+
     tresult PLUGIN_API initialize(FUnknown* context) SMTG_OVERRIDE {
         auto result = AudioEffect::initialize(context);
         if (result == kResultOk) {
-            addAudioInput(STR("Sidechain"), SpeakerArr::kStereo);
             addAudioOutput(STR("SYSTEM IN"), SpeakerArr::kStereo);
         }
         return result;
